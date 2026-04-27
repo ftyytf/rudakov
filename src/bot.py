@@ -1,29 +1,21 @@
-﻿# coding: utf-8
-import asyncio
+﻿import logging
 import os
-from aiogram import Bot, Dispatcher
-from aiogram.filters import CommandStart
-from aiogram.types import Message
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters.command import Command
 from dotenv import load_dotenv
-import db
 
 load_dotenv()
-BOT_TOKEN = os.getenv('BOT_TOKEN')
 
+BOT_TOKEN = os.getenv('BOT_TOKEN').strip()
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-# Создаём таблицы при старте
-db.create_tables()
+logging.basicConfig(level=logging.INFO)
 
-@dp.message(CommandStart())
-async def start(message: Message):
-    user = message.from_user
-    db.add_user(user.id, user.username, user.first_name, user.last_name)
-    await message.answer(f'Привет, {user.first_name}! Я работаю и тебя записал в базу.')
+@dp.message(Command("start"))
+async def cmd_start(message: types.Message):
+    await message.answer("Привет! Я работаю!")
 
-async def main():
-    await dp.start_polling(bot)
-
-if __name__ == '__main__':
-    asyncio.run(main())
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(dp.start_polling(bot))
